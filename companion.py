@@ -63,14 +63,12 @@ class Menu(Scene):
 
     def update(self):
         # print(f'{self.title}: updated...')
-        return super().update()
+        pass
 
     def draw(self):
-        if(self.focus):
-            pygame.display.set_window_position((self.window_position_x, self.window_position_y))
-        return super().draw()
+        pygame.display.set_window_position((self.window_position_x, self.window_position_y))
+        pass
     pass
-
 
 # GLOBAL VARIABLES - FUNCTIONS
 screen_width = 200
@@ -80,13 +78,17 @@ pos_y = main_monitor.height - screen_height
 os.environ['SDL_VIDEO_WINDOW_POS'] = '%d,%d' % (pos_x, pos_y)
 
 scenes:list[Scene] = []
-menu = Menu("Startup Menu", 200, 200, *get_position_coordinations(Position.CENTER, 200, 200))
+
+# STARTUP MENU
+menu_width = 400
+menu_height = 400
+menu = Menu("Startup Menu", menu_width, menu_height, *get_position_coordinations(Position.CENTER, menu_width, menu_height))
 menu.set_focus(True)
 scenes.append(menu)
 
 # PYGAME-CE
 pygame.init() 
-py_screen = pygame.display.set_mode((200, 400), pygame.RESIZABLE) # pygame.NOFRAME once
+py_screen = pygame.display.set_mode((200, 400)) # pygame.NOFRAME once
 clock = pygame.time.Clock()
 title = 'Companion by Prynaaa'
 pygame.display.set_caption(title)
@@ -102,11 +104,14 @@ while running:
 
     # Update Scenes
     for scene in scenes:
-        scene.update()
+        if(scene.focus):
+            scene.update()
 
     # Draw scenes
     for scene in scenes:
-        scene.draw()
+        if(scene.focus):
+            screen = pygame.display.set_mode((scene.scene_w, scene.scene_h))
+            scene.draw()
 
     clock.tick(60) # 60 fps
 
