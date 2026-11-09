@@ -23,7 +23,7 @@ class Position(enum.Enum):
     RIGHT_LOWER = ("right_lower")
     CENTER = ("center")
 
-def get_position_coordinations(pos, width, height):
+def get_position_coordinations(pos:Position, width, height):
     match pos:
         case Position.LEFT_UPPER:
             return 0, 0
@@ -35,6 +35,21 @@ def get_position_coordinations(pos, width, height):
             return main_monitor.width - width, main_monitor.height - height
         case Position.CENTER:
             return (main_monitor.width - width) // 2, (main_monitor.height - height) // 2
+        case _:
+            return 0, 0
+
+def get_position_coordinations_inside_window(pos:Position, scene:Scene, width, height):
+    match pos:
+        case Position.LEFT_UPPER:
+            return 0, 0
+        case Position.LEFT_LOWER:
+            return 0, scene.scene_h - height
+        case Position.RIGHT_UPPER:
+            return scene.scene_w - width, 0
+        case Position.RIGHT_LOWER:
+            return scene.scene_w - width, scene.scene_h - height
+        case Position.CENTER:
+            return (scene.scene_w - width) // 2, (scene.scene_h - height) // 2
         case _:
             return 0, 0
 
@@ -73,7 +88,7 @@ class Menu(Scene):
         pygame.display.set_window_position((self.window_position_x, self.window_position_y))
         title_text = title_font.render(f'Companion by Prynaaa', True, WHITE)
         screen.blit(title_text, title_text.get_rect(center=(self.scene_w/2, font_title_size))) # center at the top of the scene
-        screen.blit(image_companion, (self.scene_w/2, self.scene_h/2))
+        screen.blit(image_companion, get_position_coordinations_inside_window(Position.CENTER, self, image_companion.width, image_companion.height))
         pass
     pass
 
