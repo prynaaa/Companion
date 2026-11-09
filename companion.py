@@ -54,6 +54,11 @@ def get_position_coordinations_inside_window(pos:Position, scene:Scene, width, h
         case _:
             return 0, 0
 
+def changeCompanionPosition():
+    global companion_position
+    companion_position = Position.LEFT_LOWER
+    pass
+
 class Scene(abc.ABC) :
     def __init__(self, title:str, scene_w, scene_h, default_window_position_x, default_window_position_y):
         self.title = title
@@ -88,7 +93,7 @@ class Menu(Scene):
         pygame.display.set_window_position((self.window_position_x, self.window_position_y))
         title_text = title_font.render(f'Companion by Prynaaa', True, WHITE)
         screen.blit(title_text, title_text.get_rect(center=(self.scene_w/2, font_title_size))) # center at the top of the scene
-        screen.blit(image_companion, get_position_coordinations_inside_window(Position.RIGHT_LOWER, self, image_companion.width, image_companion.height))
+        screen.blit(image_companion, get_position_coordinations_inside_window(companion_position, self, image_companion.width, image_companion.height))
         pass
     pass
 
@@ -123,6 +128,13 @@ title = 'Companion by Prynaaa'
 pygame.display.set_caption(title)
 
 # message_box = pygame.display.message_box('test', 'testing this is crazy', 'info') # info, warn, error
+button_companion_position_w = 120
+button_companion_position_h = 40
+button_companion_position = pygame_gui.elements.UIButton(
+    relative_rect=pygame.Rect(get_position_coordinations_inside_window(Position.CENTER, menu, button_companion_position_w, button_companion_position_h), (button_companion_position_w, button_companion_position_h)), 
+    text='Change Position', manager=manager)
+
+companion_position = Position.RIGHT_LOWER
 
 # IMAGES
 image_companion = pygame.image.load(os.path.join('resources/default', 'companion.png')).convert()
@@ -130,15 +142,19 @@ image_companion = pygame.image.load(os.path.join('resources/default', 'companion
 # LOOP
 running = True
 while running:
-    py_screen.fill((0, 0, 0)) # clears screen every frame
+    py_screen.fill(BLACK) # clears screen every frame
     time_delta = clock.tick(24)/1000
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame_gui.UI_BUTTON_PRESSED:
+            if(event.ui_element == button_companion_position):
+                changeCompanionPosition()
         manager.process_events(event)
 
     # Update Scenes
+    manager.update(time_delta)
     for scene in scenes:
         if(scene.focus):
             scene.update()
@@ -146,7 +162,9 @@ while running:
     # Draw scenes
     for scene in scenes:
         if(scene.focus):
-            screen = pygame.display.set_mode((scene.scene_w, scene.scene_h))
+            if(py_screen.get_size() != (scene.scene_w, scene.scene_h)):
+                screen = pygame.display.set_mode((scene.scene_w, scene.scene_h))
+                manager.set_window_resolution((scene.scene_w, scene.scene_h))
             scene.draw(screen)
 
     manager.draw_ui(py_screen)
