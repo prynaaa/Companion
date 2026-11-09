@@ -107,8 +107,8 @@ class Menu(Scene):
 
     def draw(self, screen:pygame.display.set_mode): 
         pygame.display.set_window_position((self.window_position_x, self.window_position_y))
-        title_text = title_font.render(f'Companion by Prynaaa', True, WHITE)
-        screen.blit(title_text, title_text.get_rect(center=(self.scene_w/2, font_title_size))) # center at the top of the scene
+        position_text = text_font.render(f'Current companion position: {companion_position}', True, WHITE)
+        screen.blit(position_text, position_text.get_rect(center=(self.scene_w/2, font_text_size))) # center at the top of the scene
         screen.blit(image_position, get_position_coordinations_inside_window(companion_position, self, image_position.width, image_position.height)) # see image_companion comment
         pass
     pass
@@ -129,7 +129,7 @@ class Companion(Scene):
 
 # GLOBAL VARIABLES - FUNCTIONS
 companion_position = Position.RIGHT_LOWER
-screen_width = 400
+screen_width = 600
 screen_height = 800
 pos_x = main_monitor.width - screen_width
 pos_y = main_monitor.height - screen_height
@@ -138,7 +138,7 @@ os.environ['SDL_VIDEO_WINDOW_POS'] = '%d,%d' % (pos_x, pos_y)
 scenes:list[Scene] = []
 
 # STARTUP MENU
-menu_width = 400
+menu_width = 600
 menu_height = 800
 menu = Menu("Startup Menu", menu_width, menu_height, *get_position_coordinations(Position.CENTER, menu_width, menu_height))
 menu.set_focus(True)
@@ -156,8 +156,9 @@ pygame.init()
 manager = pygame_gui.UIManager((screen_width, screen_height))
 
 font_title_size = 32
-title_font = pygame.font.Font(None, 32)
-text_font = pygame.font.Font(None, 16)
+font_text_size = 24
+title_font = pygame.font.Font(None, font_title_size)
+text_font = pygame.font.Font(None, font_text_size)
 
 py_screen = pygame.display.set_mode((screen_width, screen_height)) # pygame.NOFRAME once
 clock = pygame.time.Clock()
