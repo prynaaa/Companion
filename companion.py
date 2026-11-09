@@ -5,6 +5,10 @@ import screeninfo
 import abc
 import enum
 
+# Colors
+BLACK = ( 0, 0, 0)
+WHITE = (255, 255, 255)
+
 # Monitor
 for monitor in screeninfo.get_monitors():
     if (monitor.is_primary):
@@ -53,7 +57,7 @@ class Scene(abc.ABC) :
         pass
 
     @abc.abstractmethod
-    def draw(self) -> None:
+    def draw(self, screen:pygame.display.set_mode) -> None:
         pass
     pass
 
@@ -65,8 +69,10 @@ class Menu(Scene):
         # print(f'{self.title}: updated...')
         pass
 
-    def draw(self):
+    def draw(self, screen:pygame.display.set_mode):
         pygame.display.set_window_position((self.window_position_x, self.window_position_y))
+        title_text = title_font.render(f'Companion by Prynaaa', True, WHITE)
+        screen.blit(title_text, title_text.get_rect(center=(self.scene_w/2, font_title_size))) # center at the top of the scene
         pass
     pass
 
@@ -88,6 +94,11 @@ scenes.append(menu)
 
 # PYGAME-CE
 pygame.init() 
+
+font_title_size = 32
+title_font = pygame.font.Font(None, 32)
+text_font = pygame.font.Font(None, 16)
+
 py_screen = pygame.display.set_mode((200, 400)) # pygame.NOFRAME once
 clock = pygame.time.Clock()
 title = 'Companion by Prynaaa'
@@ -111,11 +122,10 @@ while running:
     for scene in scenes:
         if(scene.focus):
             screen = pygame.display.set_mode((scene.scene_w, scene.scene_h))
-            scene.draw()
-
-    clock.tick(60) # 60 fps
+            scene.draw(screen)
 
     pygame.display.update()
+    clock.tick(60) # 120 fps
 
 
 # QUIT / END
