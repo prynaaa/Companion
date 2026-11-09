@@ -73,6 +73,7 @@ class Menu(Scene):
         pygame.display.set_window_position((self.window_position_x, self.window_position_y))
         title_text = title_font.render(f'Companion by Prynaaa', True, WHITE)
         screen.blit(title_text, title_text.get_rect(center=(self.scene_w/2, font_title_size))) # center at the top of the scene
+        screen.blit(image_companion, (self.scene_w/2, self.scene_h/2))
         pass
     pass
 
@@ -87,7 +88,7 @@ scenes:list[Scene] = []
 
 # STARTUP MENU
 menu_width = 400
-menu_height = 400
+menu_height = 800
 menu = Menu("Startup Menu", menu_width, menu_height, *get_position_coordinations(Position.CENTER, menu_width, menu_height))
 menu.set_focus(True)
 scenes.append(menu)
@@ -104,6 +105,8 @@ clock = pygame.time.Clock()
 title = 'Companion by Prynaaa'
 pygame.display.set_caption(title)
 
+# IMAGES
+image_companion = pygame.image.load(os.path.join('resources/default', 'companion.png')).convert()
 
 # LOOP
 running = True
@@ -125,7 +128,7 @@ while running:
             scene.draw(screen)
 
     pygame.display.update()
-    clock.tick(60) # 120 fps
+    clock.tick(24) # 24 fps
 
 
 # QUIT / END
