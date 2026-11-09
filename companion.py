@@ -1,6 +1,7 @@
 # IMPORT
 import os
 import pygame
+import pygame_gui
 import screeninfo
 import abc
 import enum
@@ -53,7 +54,6 @@ def get_position_coordinations_inside_window(pos:Position, scene:Scene, width, h
         case _:
             return 0, 0
 
-
 class Scene(abc.ABC) :
     def __init__(self, title:str, scene_w, scene_h, default_window_position_x, default_window_position_y):
         self.title = title
@@ -84,11 +84,11 @@ class Menu(Scene):
         # print(f'{self.title}: updated...')
         pass
 
-    def draw(self, screen:pygame.display.set_mode):
+    def draw(self, screen:pygame.display.set_mode): 
         pygame.display.set_window_position((self.window_position_x, self.window_position_y))
         title_text = title_font.render(f'Companion by Prynaaa', True, WHITE)
         screen.blit(title_text, title_text.get_rect(center=(self.scene_w/2, font_title_size))) # center at the top of the scene
-        screen.blit(image_companion, get_position_coordinations_inside_window(Position.CENTER, self, image_companion.width, image_companion.height))
+        screen.blit(image_companion, get_position_coordinations_inside_window(Position.RIGHT_LOWER, self, image_companion.width, image_companion.height))
         pass
     pass
 
@@ -108,17 +108,21 @@ menu = Menu("Startup Menu", menu_width, menu_height, *get_position_coordinations
 menu.set_focus(True)
 scenes.append(menu)
 
-# PYGAME-CE
+# PYGAME-CE & PYGAME_GUI
 pygame.init() 
+
+manager = pygame_gui.UIManager((screen_width, screen_height))
 
 font_title_size = 32
 title_font = pygame.font.Font(None, 32)
 text_font = pygame.font.Font(None, 16)
 
-py_screen = pygame.display.set_mode((200, 400)) # pygame.NOFRAME once
+py_screen = pygame.display.set_mode((screen_width, screen_height)) # pygame.NOFRAME once
 clock = pygame.time.Clock()
 title = 'Companion by Prynaaa'
 pygame.display.set_caption(title)
+
+# message_box = pygame.display.message_box('test', 'testing this is crazy', 'info') # info, warn, error
 
 # IMAGES
 image_companion = pygame.image.load(os.path.join('resources/default', 'companion.png')).convert()
@@ -127,9 +131,12 @@ image_companion = pygame.image.load(os.path.join('resources/default', 'companion
 running = True
 while running:
     py_screen.fill((0, 0, 0)) # clears screen every frame
+    time_delta = clock.tick(24)/1000
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        manager.process_events(event)
 
     # Update Scenes
     for scene in scenes:
@@ -142,8 +149,9 @@ while running:
             screen = pygame.display.set_mode((scene.scene_w, scene.scene_h))
             scene.draw(screen)
 
+    manager.draw_ui(py_screen)
     pygame.display.update()
-    clock.tick(24) # 24 fps
+    # clock.tick(24) # 24 fps
 
 
 # QUIT / END
