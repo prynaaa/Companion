@@ -123,7 +123,7 @@ class Companion(Scene):
 
     def draw(self, screen:pygame.display.set_mode): 
         pygame.display.set_window_position((self.window_position_x, self.window_position_y))
-        screen.blit(image_companion, Position.LEFT_UPPER) 
+        screen.blit(image_companion, get_position_coordinations_inside_window(companion_position, self, image_companion.width, image_companion.height)) 
         pass
     pass
 
@@ -148,6 +148,7 @@ scenes.append(menu)
 scene_companion_width = 320
 scene_companion_height = 320
 companion = Companion("Companion Scene", scene_companion_width, scene_companion_height, *get_position_coordinations(companion_position, scene_companion_width, scene_companion_width))
+scenes.append(companion)
 
 # PYGAME-CE & PYGAME_GUI
 pygame.init() 
