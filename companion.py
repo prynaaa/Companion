@@ -1,5 +1,5 @@
 # IMPORT
-import os
+import os, sys
 import pygame
 import pygame_gui
 import screeninfo
@@ -23,6 +23,11 @@ class Position(enum.Enum):
     RIGHT_UPPER = ("right_upper")
     RIGHT_LOWER = ("right_lower")
     CENTER = ("center")
+
+def resource_path(relative):
+    # Frozen (PyInstaller): sys._MEIPASS points to the _internal folder
+    base = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base, relative)
 
 def get_position_coordinations(pos:Position, width, height):
     match pos:
@@ -107,7 +112,7 @@ class Menu(Scene):
 
     def draw(self, screen:pygame.display.set_mode): 
         pygame.display.set_window_position((self.window_position_x, self.window_position_y))
-        position_text = text_font.render(f'Current companion position: {companion_position}', True, WHITE)
+        position_text = text_font.render(f'companion position: {companion_position}', True, WHITE)
         screen.blit(position_text, position_text.get_rect(center=(self.scene_w/2, font_text_size))) # center at the top of the scene
         screen.blit(image_position, get_position_coordinations_inside_window(companion_position, self, image_position.width, image_position.height)) # see image_companion comment
         pass
@@ -156,7 +161,7 @@ pygame.init()
 manager = pygame_gui.UIManager((screen_width, screen_height))
 
 font_title_size = 32
-font_text_size = 24
+font_text_size = 32
 title_font = pygame.font.Font(None, font_title_size)
 text_font = pygame.font.Font(None, font_text_size)
 
@@ -182,8 +187,10 @@ button_done = pygame_gui.elements.UIButton(
 
 
 # IMAGES
-image_companion = pygame.image.load(os.path.join('resources/default', 'plum_companion_320x320.png')).convert()
-image_position = pygame.image.load(os.path.join('resources/default', 'companion_position.png')).convert()
+image_companion = pygame.image.load(resource_path('resources/default/plum_companion_320x320.png'))
+image_position = pygame.image.load(resource_path('resources/default/companion_position.png'))
+image_icon = pygame.image.load(resource_path('resources/default/icon.ico'))
+pygame.display.set_icon(image_icon)
 
 # LOOP
 running = True

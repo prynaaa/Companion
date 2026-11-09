@@ -2,6 +2,7 @@
 *.zip
 *.iss
 *.ase
+*.ico
 installer/
 build/
 dist/
