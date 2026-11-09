@@ -122,7 +122,7 @@ class Companion(Scene):
         pass
 
     def draw(self, screen:pygame.display.set_mode): 
-        pygame.display.set_window_position((self.window_position_x, self.window_position_y))
+        pygame.display.set_window_position(get_position_coordinations(companion_position, self.scene_w, self.scene_h)) # Find a better way to do this
         screen.blit(image_companion, get_position_coordinations_inside_window(companion_position, self, image_companion.width, image_companion.height)) 
         pass
     pass
