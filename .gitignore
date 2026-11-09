@@ -1,5 +1,8 @@
 *.spec
 *.zip
+*.iss
+*.ase
+installer/
 build/
 dist/
 Compile.md

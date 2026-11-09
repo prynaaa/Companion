@@ -56,7 +56,23 @@ def get_position_coordinations_inside_window(pos:Position, scene:Scene, width, h
 
 def changeCompanionPosition():
     global companion_position
-    companion_position = Position.LEFT_LOWER
+    match companion_position:
+        case Position.LEFT_UPPER:
+            companion_position = Position.LEFT_LOWER
+        case Position.LEFT_LOWER:
+            companion_position = Position.RIGHT_UPPER
+        case Position.RIGHT_UPPER:
+            companion_position = Position.RIGHT_LOWER
+        case Position.RIGHT_LOWER:
+            companion_position = Position.LEFT_UPPER
+        case _:
+            companion_position = Position.LEFT_UPPER
+
+def changeActiveScene(scene_from:Scene, scene_to:Scene):
+    scene_from.set_focus(False)
+    scene_to.set_focus(True)
+    pygame.display.set_mode((scene_to.scene_w, scene_to.scene_h))
+    manager.set_window_resolution((scene_to.scene_w, scene_to.scene_h))
     pass
 
 class Scene(abc.ABC) :
@@ -93,13 +109,28 @@ class Menu(Scene):
         pygame.display.set_window_position((self.window_position_x, self.window_position_y))
         title_text = title_font.render(f'Companion by Prynaaa', True, WHITE)
         screen.blit(title_text, title_text.get_rect(center=(self.scene_w/2, font_title_size))) # center at the top of the scene
-        screen.blit(image_companion, get_position_coordinations_inside_window(companion_position, self, image_companion.width, image_companion.height))
+        screen.blit(image_position, get_position_coordinations_inside_window(companion_position, self, image_position.width, image_position.height)) # see image_companion comment
+        pass
+    pass
+
+class Companion(Scene):
+    def __init__(self, title: str, w: int, h: int, x: int, y: int):
+                super().__init__(title, w, h, x, y)
+    
+    def update(self):
+        # print(f'{self.title}: updated...')
+        pass
+
+    def draw(self, screen:pygame.display.set_mode): 
+        pygame.display.set_window_position((self.window_position_x, self.window_position_y))
+        screen.blit(image_companion, Position.LEFT_UPPER) 
         pass
     pass
 
 # GLOBAL VARIABLES - FUNCTIONS
-screen_width = 200
-screen_height = 400
+companion_position = Position.RIGHT_LOWER
+screen_width = 400
+screen_height = 800
 pos_x = main_monitor.width - screen_width
 pos_y = main_monitor.height - screen_height
 os.environ['SDL_VIDEO_WINDOW_POS'] = '%d,%d' % (pos_x, pos_y)
@@ -112,6 +143,11 @@ menu_height = 800
 menu = Menu("Startup Menu", menu_width, menu_height, *get_position_coordinations(Position.CENTER, menu_width, menu_height))
 menu.set_focus(True)
 scenes.append(menu)
+
+# COMPANION SCENE
+scene_companion_width = 320
+scene_companion_height = 320
+companion = Companion("Companion Scene", scene_companion_width, scene_companion_height, *get_position_coordinations(companion_position, scene_companion_width, scene_companion_width))
 
 # PYGAME-CE & PYGAME_GUI
 pygame.init() 
@@ -134,10 +170,18 @@ button_companion_position = pygame_gui.elements.UIButton(
     relative_rect=pygame.Rect(get_position_coordinations_inside_window(Position.CENTER, menu, button_companion_position_w, button_companion_position_h), (button_companion_position_w, button_companion_position_h)), 
     text='Change Position', manager=manager)
 
-companion_position = Position.RIGHT_LOWER
+button_done_position_x = 120
+button_done_position_y = 40
+button_done_width = 120
+button_done_height = -40
+button_done = pygame_gui.elements.UIButton(
+    relative_rect=pygame.Rect(get_position_coordinations_inside_window(Position.CENTER, menu, button_done_width, button_done_height), (button_done_position_x, button_done_position_y)), 
+    text='DONE', manager=manager)
+
 
 # IMAGES
-image_companion = pygame.image.load(os.path.join('resources/default', 'companion.png')).convert()
+image_companion = pygame.image.load(os.path.join('resources/default', 'plum_companion_320x320.png')).convert()
+image_position = pygame.image.load(os.path.join('resources/default', 'companion_position.png')).convert()
 
 # LOOP
 running = True
@@ -151,6 +195,10 @@ while running:
         if event.type == pygame_gui.UI_BUTTON_PRESSED:
             if(event.ui_element == button_companion_position):
                 changeCompanionPosition()
+            if(event.ui_element == button_done):
+                changeActiveScene(menu, companion)
+                button_done.hide()
+                button_companion_position.hide()
         manager.process_events(event)
 
     # Update Scenes
@@ -162,14 +210,11 @@ while running:
     # Draw scenes
     for scene in scenes:
         if(scene.focus):
-            if(py_screen.get_size() != (scene.scene_w, scene.scene_h)):
-                screen = pygame.display.set_mode((scene.scene_w, scene.scene_h))
-                manager.set_window_resolution((scene.scene_w, scene.scene_h))
-            scene.draw(screen)
+            scene.draw(py_screen)
 
     manager.draw_ui(py_screen)
     pygame.display.update()
-    # clock.tick(24) # 24 fps
+    clock.tick(24) # 24 fps
 
 
 # QUIT / END
