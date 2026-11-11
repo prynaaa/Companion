@@ -138,16 +138,31 @@ class Companion(Scene):
         pass
     pass
 
-class BSB(Scene):
-    def __init__(self, title: str, w: int, h: int, x: int, y: int):
-                    super().__init__(title, w, h, x, y)
+class Bar(Scene):
+    def __init__(self, title: str, w, h, bar_position:Position):
+        self.w = w
+        self.h = h
+        self.position = bar_position
+        match bar_position:
+            case Position.BOTTOM_CENTER:
+                self.window_position_x = main_monitor.width,
+                self.window_position_y = main_monitor.height - self.h
+                pass
+            case Position.TOP_CENTER:
+                self.window_position_x = main_monitor.width,
+                self.window_position_y = 0
+            case _:
+                self.window_position_x = main_monitor.width
+                self.window_position_y = main_monitor.height - self.h
+        super().__init__(title, w, h, self.window_position_x, self.window_position_y)
+
         
     def update(self):
         # print(f'{self.title}: updated...')
         pass
 
     def draw(self, screen:pygame.display.set_mode): 
-        pygame.display.set_window_position(get_position_coordinations(Position.BOTTOM_CENTER, self.scene_w, self.scene_h)) # Find a better way to do this
+        pygame.display.set_window_position(get_position_coordinations(self.position, self.w, self.h)) # Find a better way to do this
         pass
     pass
 
@@ -175,10 +190,10 @@ companion = Companion("Companion Scene", scene_companion_width, scene_companion_
 scenes.append(companion)
 
 # BOTTOM SCREEN BAR SCENE
-scene_bcb_width = main_monitor.width
-scene_bsb_height = 100
-bsb = BSB("Bottom Screen Bar", scene_bcb_width, scene_bsb_height, *get_position_coordinations(Position.BOTTOM_CENTER, scene_bcb_width, scene_companion_height))
-scenes.append(bsb)
+scene_bar_width = main_monitor.width
+scene_bar_height = 100
+bar = Bar("Bar", scene_bar_width, scene_bar_height, Position.TOP_CENTER)
+scenes.append(bar)
 
 # PYGAME-CE & PYGAME_GUI
 pygame.init() 
@@ -190,7 +205,7 @@ font_text_size = 32
 title_font = pygame.font.Font(None, font_title_size)
 text_font = pygame.font.Font(None, font_text_size)
 
-py_screen = pygame.display.set_mode((screen_width, screen_height), pygame.NOFRAME) # pygame.NOFRAME once
+py_screen = pygame.display.set_mode((screen_width, screen_height)) # pygame.NOFRAME once
 clock = pygame.time.Clock()
 title = 'Companion by Prynaaa'
 pygame.display.set_caption(title)
