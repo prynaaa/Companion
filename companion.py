@@ -23,6 +23,8 @@ class Position(enum.Enum):
     RIGHT_UPPER = ("right_upper")
     RIGHT_LOWER = ("right_lower")
     CENTER = ("center")
+    BOTTOM_CENTER = ("bottom_center")
+    TOP_CENTER = ("top_center")
 
 def resource_path(relative):
     # Frozen (PyInstaller): sys._MEIPASS points to the _internal folder
@@ -41,6 +43,10 @@ def get_position_coordinations(pos:Position, width, height):
             return main_monitor.width - width, main_monitor.height - height
         case Position.CENTER:
             return (main_monitor.width - width) // 2, (main_monitor.height - height) // 2
+        case Position.BOTTOM_CENTER:
+            return (main_monitor.width - width) // 2, (main_monitor.height - height)
+        case Position.TOP_CENTER:
+            return (main_monitor.width - width) // 2, 0
         case _:
             return 0, 0
 
@@ -132,6 +138,19 @@ class Companion(Scene):
         pass
     pass
 
+class BSB(Scene):
+    def __init__(self, title: str, w: int, h: int, x: int, y: int):
+                    super().__init__(title, w, h, x, y)
+        
+    def update(self):
+        # print(f'{self.title}: updated...')
+        pass
+
+    def draw(self, screen:pygame.display.set_mode): 
+        pygame.display.set_window_position(get_position_coordinations(Position.BOTTOM_CENTER, self.scene_w, self.scene_h)) # Find a better way to do this
+        pass
+    pass
+
 # GLOBAL VARIABLES - FUNCTIONS
 companion_position = Position.RIGHT_LOWER
 screen_width = 600
@@ -142,7 +161,7 @@ os.environ['SDL_VIDEO_WINDOW_POS'] = '%d,%d' % (pos_x, pos_y)
 
 scenes:list[Scene] = []
 
-# STARTUP MENU
+# STARTUP MENU SCENE
 menu_width = 600
 menu_height = 800
 menu = Menu("Startup Menu", menu_width, menu_height, *get_position_coordinations(Position.CENTER, menu_width, menu_height))
@@ -155,6 +174,12 @@ scene_companion_height = 320
 companion = Companion("Companion Scene", scene_companion_width, scene_companion_height, *get_position_coordinations(companion_position, scene_companion_width, scene_companion_width))
 scenes.append(companion)
 
+# BOTTOM SCREEN BAR SCENE
+scene_bcb_width = main_monitor.width
+scene_bsb_height = 100
+bsb = BSB("Bottom Screen Bar", scene_bcb_width, scene_bsb_height, *get_position_coordinations(Position.BOTTOM_CENTER, scene_bcb_width, scene_companion_height))
+scenes.append(bsb)
+
 # PYGAME-CE & PYGAME_GUI
 pygame.init() 
 
@@ -165,7 +190,7 @@ font_text_size = 32
 title_font = pygame.font.Font(None, font_title_size)
 text_font = pygame.font.Font(None, font_text_size)
 
-py_screen = pygame.display.set_mode((screen_width, screen_height)) # pygame.NOFRAME once
+py_screen = pygame.display.set_mode((screen_width, screen_height), pygame.NOFRAME) # pygame.NOFRAME once
 clock = pygame.time.Clock()
 title = 'Companion by Prynaaa'
 pygame.display.set_caption(title)
